@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, ShoppingBag } from 'lucide-react';
-import { useCartStore } from '@/store/cartStore';
-import MinimalHeader from '@/components/checkout/MinimalHeader';
-import MinimalFooter from '@/components/checkout/MinimalFooter';
+import React, { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { CheckCircle2, ShoppingBag } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
+import MinimalHeader from "@/components/checkout/MinimalHeader";
+import MinimalFooter from "@/components/checkout/MinimalFooter";
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const clearCart = useCartStore((state) => state.clearCart);
-  const [orderNumber, setOrderNumber] = useState('');
+  const [orderNumber, setOrderNumber] = useState("");
 
   useEffect(() => {
-    // Limpa o carrinho de compras
     clearCart();
 
-    const orderNum = searchParams.get('order_num');
+    const orderNum = searchParams.get("order_num");
     if (orderNum) {
       setOrderNumber(orderNum);
     }
@@ -66,5 +65,13 @@ export default function CheckoutSuccessPage() {
 
       <MinimalFooter />
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
