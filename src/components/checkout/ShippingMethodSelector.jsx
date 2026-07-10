@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function ShippingMethodSelector({ options, selectedMethodId, setSelectedMethod }) {
   if (!options || options.length === 0) {
-    return <p className="text-muted-foreground text-sm pt-4">Nenhum método de envio disponível.</p>;
+    return <p className="text-muted-foreground text-sm pt-4">No shipping methods available for this region.</p>;
   }
 
   return (

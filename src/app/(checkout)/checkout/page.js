@@ -73,15 +73,31 @@ export default function CheckoutPage() {
   const shippingCost = selectedShippingMethod?.price || 0;
   const total = subtotal + shippingCost;
 
-  // STRIPE: Pede uma intenção de pagamento sempre que os itens ou os portes mudam
+  // Filtro para salvar a encomenda
+  const cleanCartItems = items.map(item => ({
+    product_id: item.id,
+    variant_id: item.variant_id,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    size: item.selectedVariant?.size,
+    color: item.selectedVariant?.color,
+    option: item.selectedVariant?.option,
+    image: item.images?.[0] || "/Default.webp" 
+  }));
+
+  // Usa os items LIMPOS para não sobrecarregar a base de dados
   useEffect(() => {
-    if (items.length > 0) {
-      createPaymentIntent(items, shippingCost).then((res) => {
+    if (cleanCartItems.length > 0) {
+      createPaymentIntent(cleanCartItems, shippingCost).then((res) => {
         if (res?.clientSecret) {
           setClientSecret(res.clientSecret);
         }
       });
     }
+    // O eslint pode pedir para colocar o cleanCartItems nas dependências, 
+    // mas como ele deriva do items, usamos o items para evitar loops infinitos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, shippingCost]);
 
   // Tema visual do Stripe
@@ -147,7 +163,7 @@ export default function CheckoutPage() {
               <Elements key={clientSecret} stripe={stripePromise} options={stripeOptions}>
                 <PaymentSelector 
                   formData={formData}
-                  cartItems={items}
+                  cartItems={cleanCartItems}
                   shippingMethod={selectedShippingMethod}
                   shippingCost={shippingCost}
                   clientSecret={clientSecret}
