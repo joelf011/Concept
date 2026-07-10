@@ -23,6 +23,9 @@ export const useCartStore = create(
         const { items } = get();
         const cartItemId = generateCartItemId(product);
         const quantityToAdd = product.quantity || 1; 
+        
+        // Recupera o stock máximo enviado pela página
+        const maxStock = product.maxStock !== undefined ? product.maxStock : 999; 
 
         const existing = items.find((item) => item.cartItemId === cartItemId);
         
@@ -30,12 +33,15 @@ export const useCartStore = create(
           set({
             items: items.map((item) =>
               item.cartItemId === cartItemId 
-                ? { ...item, quantity: item.quantity + quantityToAdd } 
+                // Nunca deixa a soma ultrapassar o stock real
+                ? { ...item, quantity: Math.min(item.quantity + quantityToAdd, maxStock), maxStock } 
                 : item
             ),
           });
         } else {
-          set({ items: [...items, { ...product, cartItemId, quantity: quantityToAdd }] });
+          set({ 
+            items: [...items, { ...product, cartItemId, quantity: Math.min(quantityToAdd, maxStock), maxStock }] 
+          });
         }
       },
 
@@ -46,9 +52,14 @@ export const useCartStore = create(
 
       increaseQuantity: (cartItemId) =>
         set((state) => ({
-          items: state.items.map((item) =>
-            item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + 1 } : item
-          ),
+          items: state.items.map((item) => {
+            if (item.cartItemId === cartItemId) {
+              const max = item.maxStock !== undefined ? item.maxStock : 999;
+              // Bloqueia incrementos infinitos dentro do carrinho
+              return { ...item, quantity: Math.min(item.quantity + 1, max) };
+            }
+            return item;
+          }),
         })),
 
       decreaseQuantity: (cartItemId) =>

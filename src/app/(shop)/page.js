@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { getProducts } from "@/services/supabase";
+import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/store/ProductCard";
 import { ArrowRight } from "lucide-react";
 
@@ -8,8 +8,15 @@ const heroImage = "/hero.webp";
 const customBannerImage = "/personalized.webp";
 
 export default async function Home() {
-  const products = await getProducts();
-  const featuredProducts = products.slice(0, 4);
+  const supabase = await createClient();
+  const { data: products } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  // Previne erros caso a base de dados falhe
+  const safeProducts = products || [];
+  const featuredProducts = safeProducts.slice(0, 4);
 
   return (
     <div>

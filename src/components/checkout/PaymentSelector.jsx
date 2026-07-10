@@ -49,7 +49,7 @@ export default function PaymentSelector({ formData, cartItems, shippingMethod, s
       email: formData.email,
       shippingAddress: formData,
       cartItems: cartItems,
-      shippingMethod: shippingMethod?.name || 'Standard Shipping',
+      shippingMethod: shippingMethod?.title || 'Standard Shipping',
       shippingCostCents: Math.round(shippingCost * 100),
       totalAmountCents: totalAmountCents
     }

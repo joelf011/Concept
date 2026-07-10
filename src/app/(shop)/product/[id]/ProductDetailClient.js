@@ -6,8 +6,6 @@ import { Minus, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/store/cartStore";
 import { useToastStore } from "@/store/toastStore";
-
-// Componentes extraídos
 import ProductGallery from "@/components/store/ProductGallery";
 import VariantSelector from "@/components/store/VariantSelector";
 import ProductAccordions from "@/components/store/ProductAccordions";
@@ -25,18 +23,52 @@ export default function ProductDetailClient({ product }) {
   const safeBasePrice = Number(product.base_price) || Number(product.price) || 0;
   const [finalPrice, setFinalPrice] = useState(safeBasePrice);
 
+  // (STOCK)
+  const colorName = typeof selectedColor === 'string' ? selectedColor : selectedColor?.name;
+  const optionName = selectedOption?.label;
+  
+  // Encontrar a variante exata cruzando Tamanho + Cor + Opção Extra
+  const activeVariant = product.product_variants?.find((variant) => {
+    const matchSize = variant.size === selectedSize;
+    const matchColor = variant.color === colorName;
+    
+    // Se o produto tiver opções (ex: Premium), a variante na DB tem de bater certo
+    // Se o produto não tiver opções, aceitamos as variantes que têm a coluna custom_option vazia
+    const matchOption = optionName 
+      ? variant.custom_option === optionName 
+      : (variant.custom_option === null || variant.custom_option === '');
+
+    return matchSize && matchColor && matchOption;
+  });
+
+  const currentStock = activeVariant ? activeVariant.stock_quantity : 0;
+  const isOutOfStock = currentStock <= 0;
+
   useEffect(() => {
     const extraCost = Number(selectedOption?.price_modifier) || 0;
     setFinalPrice(safeBasePrice + extraCost);
-  }, [selectedOption, safeBasePrice]);
+    
+    // Se o cliente mudar de tamanho/cor e o novo stock for menor que a quantidade escolhida, ajustamos para o máximo possível ou 1
+    if (quantity > currentStock && currentStock > 0) {
+      setQuantity(currentStock);
+    } else if (currentStock === 0) {
+      setQuantity(1); // Reset visual se esgotou
+    }
+  }, [selectedOption, safeBasePrice, currentStock, quantity]);
 
   const handleAddToCart = () => {
+    // Dupla proteção: não adicionar se estiver esgotado
+    if (isOutOfStock) return;
+
     const itemToAdd = {
       ...product,
+      // INJETAR O ID DA VARIANTE (para o Webhook)
+      variant_id: activeVariant?.id,
+      maxStock: currentStock,
       price: finalPrice,
       selectedVariant: {
         size: selectedSize,
-        color: selectedColor?.name,
+        color: colorName,
         option: selectedOption?.label
       },
       quantity
@@ -89,22 +121,48 @@ export default function ProductDetailClient({ product }) {
               selectedOption={selectedOption} setSelectedOption={setSelectedOption}
               selectedSize={selectedSize} setSelectedSize={setSelectedSize}
               selectedColor={selectedColor} setSelectedColor={setSelectedColor}
+              variants={product.product_variants} 
             />
+
+            {/* Aviso de Stock */}
+            {currentStock > 0 && currentStock <= 5 && (
+              <p className="text-sm text-red-500 font-medium mt-4">
+                Only {currentStock} in stock!
+              </p>
+            )}
 
             {/* Quantidade e Adicionar ao Carrinho */}
             <div className="flex gap-4 mt-12 mb-16">
-              <div className="flex items-center border border-border rounded-md px-4 py-3">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-muted-foreground hover:text-foreground">
+              <div className="flex items-center border border-border rounded-md px-4 py-3 opacity-100 transition-opacity">
+                <button 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                  className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  disabled={isOutOfStock}
+                >
                   <Minus size={16} />
                 </button>
                 <span className="w-12 text-center font-mono">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="text-muted-foreground hover:text-foreground">
+                <button 
+                  // Proteção para o utilizador não conseguir selecionar mais do que há em stock
+                  onClick={() => setQuantity(Math.min(currentStock, quantity + 1))} 
+                  className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  disabled={isOutOfStock || quantity >= currentStock}
+                >
                   <Plus size={16} />
                 </button>
               </div>
               
-              <button onClick={handleAddToCart} className="btn-primary flex-1 text-center bg-foreground text-background rounded-md">
-                Add to cart
+              {/* BOTÃO DINÂMICO DE COMPRA */}
+              <button 
+                onClick={handleAddToCart} 
+                disabled={isOutOfStock}
+                className={`flex-1 text-center rounded-md font-medium transition-all ${
+                  isOutOfStock 
+                    ? "bg-secondary/50 text-muted-foreground cursor-not-allowed" 
+                    : "btn-primary bg-foreground text-background"
+                }`}
+              >
+                {isOutOfStock ? "Out of Stock" : "Add to cart"}
               </button>
             </div>
 

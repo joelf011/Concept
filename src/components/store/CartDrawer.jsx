@@ -50,6 +50,9 @@ export default function CartDrawer() {
                   {items.map((item) => {
                     const hasValidImageArray = Array.isArray(item.images) && item.images.length > 0;
                     const displayImage = hasValidImageArray ? item.images[0] : "/Default.webp";
+                    
+                    // Verifica se o limite foi atingido para desativar o botão +
+                    const isMaxStockReached = item.maxStock !== undefined && item.quantity >= item.maxStock;
 
                     return (
                       <div key={item.cartItemId || item.id} className="flex gap-4">
@@ -91,8 +94,9 @@ export default function CartDrawer() {
                             </button>
                             <span className="font-mono text-xs w-4 text-center">{item.quantity}</span>
                             <button
-                              onClick={() => increaseQuantity(item.cartItemId || item.id)}
-                              className="hover:opacity-60 transition-opacity"
+                              onClick={() => !isMaxStockReached && increaseQuantity(item.cartItemId || item.id)}
+                              disabled={isMaxStockReached}
+                              className={`transition-opacity ${isMaxStockReached ? 'opacity-20 cursor-not-allowed' : 'hover:opacity-60'}`}
                             >
                               <Plus size={14} strokeWidth={1.5} />
                             </button>
