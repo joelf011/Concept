@@ -5,8 +5,8 @@ export default function Footer() {
   return (
     <footer className="border-t border-border mt-auto">
       <div className="px-[8vw] py-16 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
+          <div className="md:col-span-2">
             <h4 className="font-heading text-lg font-semibold tracking-[-0.04em] mb-6">
               Concept
             </h4>
@@ -21,16 +21,18 @@ export default function Footer() {
               <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Shop All</Link>
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">About Us</Link>
               <Link href="/custom-order" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Custom Orders</Link>
-              <Link href="/shipping-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Shipping Policy</Link>
+              <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Contact Us</Link>
             </div>
           </div>
 
           <div>
-            <p className="label-mono mb-6">Contact</p>
+            <p className="label-mono mb-6">Legal & Support</p>
             <div className="flex flex-col gap-3">
-              <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Contact Us</Link>
-              <a href="mailto:conceptclothing.pt@gmail.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">conceptclothing.pt@gmail.com</a>
-              <Link href="/custom-order" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Request a Quote</Link>
+              <Link href="/shipping-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Shipping Policy</Link>
+              <Link href="/refund-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Refund Policy</Link>
+              <Link href="/terms-of-service" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Terms of Service</Link>
+              <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Privacy Policy</Link>
+              <Link href="/legal-notice" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300">Legal Notice</Link>
             </div>
           </div>
         </div>
@@ -40,7 +42,7 @@ export default function Footer() {
             © {new Date().getFullYear()} Concept. All rights reserved.
           </p>
           <div className="flex gap-8">
-            <Link href="/shipping-policy" className="font-mono text-[11px] text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors duration-300">Shipping</Link>
+            <Link href="/cookies" className="font-mono text-[11px] text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors duration-300">Cookies</Link>
             <Link href="/contact" className="font-mono text-[11px] text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors duration-300">Contact</Link>
           </div>
         </div>

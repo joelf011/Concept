@@ -158,7 +158,7 @@ export default function CheckoutPage() {
               setSelectedMethod={setSelectedShippingMethod}
             />
             
-            {/* O Stripe agora recebe todos os dados para poder gravar a encomenda */}
+            {/* O Stripe recebe todos os dados para poder gravar a encomenda */}
             {clientSecret ? (
               <Elements key={clientSecret} stripe={stripePromise} options={stripeOptions}>
                 <PaymentSelector 

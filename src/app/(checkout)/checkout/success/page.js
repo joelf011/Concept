@@ -48,7 +48,7 @@ function CheckoutSuccessContent() {
 
         <div className="flex flex-col sm:flex-row gap-4">
           <Link 
-            href="/account" 
+            href="/track" 
             className="btn-outline px-8 py-4 border border-border text-foreground hover:bg-secondary/50 rounded-md font-medium transition-colors"
           >
             Track Order
